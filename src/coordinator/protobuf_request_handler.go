@@ -134,13 +134,13 @@ func (self *ProtobufRequestHandler) WriteResponse(conn net.Conn, response *proto
 		return self.WriteResponse(conn, response)
 	}
 
+	response.TimeUsec = proto.Int64(time.Now().UnixNano() / 1000)
 	data, err := response.Encode()
 	if err != nil {
 		log.Error("error encoding response: %s", err)
 		return err
 	}
 
-	response.TimeUsec = proto.Int64(time.Now().UnixNano() / 1000)
 	buff := bytes.NewBuffer(make([]byte, 0, len(data)+8))
 	binary.Write(buff, binary.LittleEndian, uint32(len(data)))
 	_, err = conn.Write(append(buff.Bytes(), data...))
