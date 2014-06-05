@@ -10,6 +10,7 @@ import (
 	"net"
 	"parser"
 	"protocol"
+	"time"
 
 	log "code.google.com/p/log4go"
 )
@@ -39,6 +40,10 @@ func (self *ProtobufRequestHandler) HandleRequest(request *protocol.Request, con
 		go self.handleQuery(request, conn)
 	case protocol.Request_HEARTBEAT:
 		response := &protocol.Response{RequestId: request.Id, Type: &heartbeatResponse}
+		if request.TimeUsec != nil {
+			t := request.GetTimeUsec()
+			log.Info("Handled response in %s\n", time.Now().Sub(time.Unix(t/1000000, t%1000000)))
+		}
 		return self.WriteResponse(conn, response)
 	default:
 		log.Error("unknown request type: %v", request)
