@@ -94,7 +94,9 @@ func (self *ClusterServer) Connect() {
 }
 
 func (self *ClusterServer) MakeRequest(request *protocol.Request, responseStream chan *protocol.Response) {
+	s := time.Now()
 	err := self.connection.MakeRequest(request, responseStream)
+	log.Info("Sent heartbeat in %s", time.Now().Sub(s))
 	if err != nil {
 		message := err.Error()
 		select {
