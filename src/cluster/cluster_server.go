@@ -8,7 +8,6 @@ import (
 	"protocol"
 	"time"
 
-	"code.google.com/p/goprotobuf/proto"
 	log "code.google.com/p/log4go"
 )
 
@@ -146,7 +145,6 @@ func (self *ClusterServer) heartbeat() {
 		heartbeatRequest := &protocol.Request{
 			Type:     &HEARTBEAT_TYPE,
 			Database: protocol.String(""),
-			TimeUsec: proto.Int64(time.Now().UnixNano() / 1000),
 		}
 		self.MakeRequest(heartbeatRequest, responseChan)
 		err := self.getHeartbeatResponse(responseChan)

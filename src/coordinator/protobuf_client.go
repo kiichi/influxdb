@@ -11,6 +11,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"code.google.com/p/goprotobuf/proto"
 	log "code.google.com/p/log4go"
 )
 
@@ -102,6 +103,7 @@ func (self *ProtobufClient) ClearRequests() {
 // with a matching request.Id. The REQUEST_RETRY_ATTEMPTS constant of 3 and the RECONNECT_RETRY_WAIT of 100ms means
 // that an attempt to make a request to a downed server will take 300ms to time out.
 func (self *ProtobufClient) MakeRequest(request *protocol.Request, responseStream chan *protocol.Response) error {
+	request.TimeUsec = proto.Int64(time.Now().UnixNano() / 1000)
 	if request.Id == nil {
 		id := atomic.AddUint32(&self.lastRequestId, uint32(1))
 		request.Id = &id
@@ -183,6 +185,10 @@ func (self *ProtobufClient) readResponses() {
 			log.Error("error unmarshaling response: %s", err)
 			time.Sleep(200 * time.Millisecond)
 		} else {
+			if response.TimeUsec != nil {
+				t := response.GetTimeUsec()
+				log.Info("Response took %s on wire", time.Now().Sub(time.Unix(t/1000000, t%1000000)))
+			}
 			self.sendResponse(response)
 		}
 	}
