@@ -103,7 +103,6 @@ func (self *ProtobufClient) ClearRequests() {
 // with a matching request.Id. The REQUEST_RETRY_ATTEMPTS constant of 3 and the RECONNECT_RETRY_WAIT of 100ms means
 // that an attempt to make a request to a downed server will take 300ms to time out.
 func (self *ProtobufClient) MakeRequest(request *protocol.Request, responseStream chan *protocol.Response) error {
-	request.TimeUsec = proto.Int64(time.Now().UnixNano() / 1000)
 	if request.Id == nil {
 		id := atomic.AddUint32(&self.lastRequestId, uint32(1))
 		request.Id = &id
@@ -122,17 +121,18 @@ func (self *ProtobufClient) MakeRequest(request *protocol.Request, responseStrea
 		self.requestBufferLock.Unlock()
 	}
 
-	data, err := request.Encode()
-	if err != nil {
-		return err
-	}
-
 	conn := self.getConnection()
 	if conn == nil {
 		conn = self.reconnect()
 		if conn == nil {
 			return fmt.Errorf("Failed to connect to server %s", self.hostAndPort)
 		}
+	}
+
+	request.TimeUsec = proto.Int64(time.Now().UnixNano() / 1000)
+	data, err := request.Encode()
+	if err != nil {
+		return err
 	}
 
 	if self.writeTimeout > 0 {
