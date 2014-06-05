@@ -134,6 +134,10 @@ func (self *ProtobufRequestHandler) WriteResponse(conn net.Conn, response *proto
 		return self.WriteResponse(conn, response)
 	}
 
+	s := time.Now()
+	defer func() {
+		log.Info("Sent %s response in %s", response.GetType(), time.Now().Sub(s))
+	}()
 	self.l.Lock()
 	defer self.l.Unlock()
 
