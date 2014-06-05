@@ -10,6 +10,7 @@ import (
 	"net"
 	"parser"
 	"protocol"
+	"sync"
 	"time"
 
 	"code.google.com/p/goprotobuf/proto"
@@ -20,6 +21,7 @@ type ProtobufRequestHandler struct {
 	coordinator   Coordinator
 	clusterConfig *cluster.ClusterConfiguration
 	writeOk       protocol.Response_Type
+	l             sync.Mutex
 }
 
 var (
@@ -131,6 +133,9 @@ func (self *ProtobufRequestHandler) WriteResponse(conn net.Conn, response *proto
 		response.Series.Points = secondHalfPoints
 		return self.WriteResponse(conn, response)
 	}
+
+	self.l.Lock()
+	defer self.l.Unlock()
 
 	response.TimeUsec = proto.Int64(time.Now().UnixNano() / 1000)
 	data, err := response.Encode()
