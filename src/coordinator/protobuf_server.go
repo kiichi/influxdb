@@ -123,9 +123,9 @@ func (self *ProtobufServer) handleRequest(conn net.Conn, messageSize int64, buff
 
 	if request.TimeUsec != nil {
 		t := request.GetTimeUsec()
-		log.Info("%s request took %s on wire", request.GetType(), time.Now().Sub(time.Unix(t/1000000, t%1000000)))
-		request.TimeUsec = proto.Int64(time.Now().UnixNano() / 1000)
+		log.Info("%s request took %s on wire", request.GetType(), time.Now().Sub(time.Unix(t/1000000, (t%1000000)*1000)))
 	}
+	request.TimeUsec = proto.Int64(time.Now().UnixNano() / 1000)
 
 	log.Debug("Received %s request: %d", request.GetType(), request.GetRequestNumber())
 
