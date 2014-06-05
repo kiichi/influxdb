@@ -187,7 +187,7 @@ func (self *ProtobufClient) readResponses() {
 		} else {
 			if response.TimeUsec != nil {
 				t := response.GetTimeUsec()
-				log.Info("Response took %s on wire", time.Now().Sub(time.Unix(t/1000000, t%1000000)))
+				log.Info("%s response took %s on wire", response.GetType(), time.Now().Sub(time.Unix(t/1000000, t%1000000)))
 			}
 			self.sendResponse(response)
 		}
