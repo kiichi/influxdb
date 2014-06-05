@@ -39,10 +39,11 @@ func (self *ProtobufRequestHandler) HandleRequest(request *protocol.Request, con
 	case protocol.Request_QUERY:
 		go self.handleQuery(request, conn)
 	case protocol.Request_HEARTBEAT:
+		s := time.Now()
 		response := &protocol.Response{RequestId: request.Id, Type: &heartbeatResponse}
 		if request.TimeUsec != nil {
 			t := request.GetTimeUsec()
-			log.Info("Handled response in %s", time.Now().Sub(time.Unix(t/1000000, t%1000000)))
+			log.Info("Handled response in %s (actual: %s)", time.Now().Sub(time.Unix(t/1000000, t%1000000)), time.Now().Sub(s))
 		}
 		return self.WriteResponse(conn, response)
 	default:
